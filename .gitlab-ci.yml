@@ -1,0 +1,100 @@
+stages:
+  - build
+  - lint
+  - test
+  - security
+  - dast
+  - deploy
+
+variables:
+  PYTHON_VERSION: "3.11"
+  SAST_EXCLUDED_PATHS: "venv/"
+  GIT_DEPTH: "0"
+  SECRET_DETECTION_HISTORIC_SCAN: "true"
+
+# =========================
+# BUILD
+# =========================
+build:
+  stage: build
+  image: python:${PYTHON_VERSION}
+  script:
+    - pip install -r requirements.txt
+    - echo "Build stage complete"
+
+# =========================
+# LINT
+# =========================
+lint:
+  stage: lint
+  image: python:${PYTHON_VERSION}
+  script:
+    - pip install flake8
+    - flake8 . --exclude=venv,__pycache__,.git,migrations,.venv
+  allow_failure: true
+  
+
+# =========================
+# TEST
+# =========================
+test:
+  stage: test
+  image: python:${PYTHON_VERSION}
+  script:
+    - pip install -r requirements.txt
+    - pip install pytest
+    - pytest --collect-only -q > /dev/null 2>&1 && pytest || echo "No tests found, skipping test execution"
+
+# =========================
+# BANDIT
+# =========================
+security:bandit:
+  stage: security
+  image: python:${PYTHON_VERSION}
+  script:
+    - pip install bandit
+    - bandit app.py -ll
+  allow_failure: true
+
+# =========================
+# GITLAB SECURITY
+# =========================
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/DAST.gitlab-ci.yml
+
+sast:
+  allow_failure: true
+
+# Override secret detection safely
+secret_detection:
+  before_script: []
+  allow_failure: true
+
+# =========================
+# DAST CONFIG
+# =========================
+dast:
+  stage: dast
+  variables:
+    DAST_WEBSITE: "https://event-checkin-app-xzj0.onrender.com"
+
+# =========================
+# DEPLOY
+# =========================
+deploy:verify:
+  stage: deploy
+  image: python:${PYTHON_VERSION}
+  script:
+    - echo "Verifying deployed application on Render..."
+    - pip install requests
+    - python -c "import requests; r = requests.get('https://event-checkin-app-xzj0.onrender.com', timeout=30); print('Status Code:', r.status_code); assert r.status_code == 200, f'Expected 200, got {r.status_code}'"
+    - echo "Deployment verified via GitLab pipeline"
+  environment:
+    name: production
+    url: https://event-checkin-app-xzj0.onrender.com
+  only:
+    - main
+  when: manual

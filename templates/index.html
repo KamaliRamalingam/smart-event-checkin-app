@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EventPro — Event Management Platform</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1e293b;font-size:14px;line-height:1.5;transition:background .2s,color .2s;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+
+/* ── DARK MODE ── */
+body.dark{background:#0f172a;color:#e2e8f0;}
+body.dark .header{background:#1e293b;border-color:#334155;}
+body.dark .sidebar{background:#1e293b;border-color:#334155;}
+body.dark .sb-stat{background:#0f172a;}
+body.dark .nav-btn{color:#94a3b8;}
+body.dark .nav-btn:hover{background:#0f172a;color:#e2e8f0;}
+body.dark .nav-btn.active{background:#1e3a5f;color:#60a5fa;border-left-color:#4361ee;}
+body.dark .stat-card{background:#1e293b;border-color:#334155;}
+body.dark .sc-label{color:#64748b;}
+body.dark .tc{background:#1e293b;border-color:#334155;}
+body.dark .tc-header{border-color:#334155;}
+body.dark .tc-title{color:#e2e8f0;}
+body.dark .tc-toolbar{background:#0f172a;border-color:#1e293b;}
+body.dark .tc-search input{background:#0f172a;border-color:#334155;color:#e2e8f0;}
+body.dark .filter-sel{background:#0f172a;border-color:#334155;color:#e2e8f0;}
+body.dark .sort-btn{background:#0f172a;border-color:#334155;color:#e2e8f0;}
+body.dark thead{background:#0f172a;}
+body.dark th{color:#94a3b8;border-color:#334155;}
+body.dark td{color:#cbd5e1;border-color:#1e293b;}
+body.dark tbody tr:hover td{background:#1e2d40;}
+body.dark .chart-card{background:#1e293b;border-color:#334155;}
+body.dark .chart-card h3{color:#94a3b8;}
+body.dark .modal{background:#1e293b;}
+body.dark .modal-hd h2{color:#e2e8f0;}
+body.dark .fg label{color:#94a3b8;}
+body.dark .fg input,.dark .fg select,.dark .fg textarea{background:#0f172a;border-color:#334155;color:#e2e8f0;}
+body.dark .btn-secondary{background:#334155;color:#e2e8f0;border-color:#475569;}
+body.dark .btn-secondary:hover{background:#475569;}
+body.dark .ph h1{color:#e2e8f0;}
+body.dark .ph p{color:#64748b;}
+body.dark .inner-page{background:#0f172a;}
+body.dark .inner-top{background:#1e293b;border-color:#334155;}
+body.dark .inner-top-title{color:#e2e8f0;}
+body.dark .detail-card{background:#1e293b;border-color:#334155;}
+body.dark .detail-card h2{color:#e2e8f0;}
+body.dark .detail-field dd{color:#cbd5e1;}
+body.dark .username{color:#e2e8f0;}
+body.dark .pipe-card{background:#1e293b;border-color:#334155;}
+body.dark .reg-ev{background:#1e293b;border-color:#334155;}
+body.dark .reg-form-box{background:#1e293b;border-color:#334155;}
+body.dark .reg-success{background:#1e293b;border-color:#334155;}
+body.dark #regView{background:#0f172a;}
+body.dark .reg-hd{background:#1e293b;border-color:#334155;}
+
+/* Dark mode toggle button */
+.dm-toggle{background:none;border:1px solid #e2e8f0;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:#334155;display:flex;align-items:center;gap:5px;transition:all .2s;}
+.dm-toggle:hover{background:#f1f5f9;}
+body.dark .dm-toggle{border-color:#475569;color:#e2e8f0;}
+body.dark .dm-toggle:hover{background:#334155;}
+
+/* ── HEADER ── */
+.header{background:#fff;border-bottom:1px solid #e2e8f0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:#4361ee;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;}
+.logo-text{font-size:15px;font-weight:700;color:#4361ee;}
+.logo-sub{font-size:10px;color:#94a3b8;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4361ee,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;}
+.username{font-size:13px;font-weight:600;color:#334155;}
+.logout-btn{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;}
+.logout-btn:hover{background:#fecaca;}
+.reglink-btn{background:#eff6ff;color:#4361ee;border:1px solid #bfdbfe;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;}
+
+/* ── LAYOUT ── */
+.layout{display:flex;min-height:calc(100vh - 60px);}
+.sidebar{width:210px;background:#fff;border-right:1px solid #e2e8f0;padding:14px 0;flex-shrink:0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;}
+.sb-stat{margin:0 10px 8px;padding:10px 12px;border-radius:8px;background:#f8fafc;border-left:3px solid #4361ee;}
+.sb-stat.g{border-left-color:#10b981;}
+.sb-stat.a{border-left-color:#f59e0b;}
+.sb-label{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;}
+.sb-val{font-size:18px;font-weight:700;color:#4361ee;}
+.sb-stat.g .sb-val{color:#10b981;}
+.sb-stat.a .sb-val{color:#f59e0b;}
+.sb-sep{font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;padding:10px 14px 4px;}
+.nav-btn{width:100%;padding:9px 14px;border:none;background:transparent;text-align:left;font-size:13px;color:#64748b;display:flex;align-items:center;gap:8px;border-left:3px solid transparent;font-weight:500;}
+.nav-btn:hover{background:#f8fafc;color:#334155;}
+.nav-btn.active{background:#eff6ff;color:#4361ee;border-left-color:#4361ee;font-weight:600;}
+.main{flex:1;padding:22px;overflow-x:hidden;min-width:0;}
+
+/* ── TABS ── */
+.tab{display:none;}
+.tab.on{display:block;}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:12px;flex-wrap:wrap;}
+.ph h1{font-size:19px;font-weight:700;color:#1e293b;}
+.ph p{font-size:12px;color:#64748b;margin-top:2px;}
+.ph-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* ── STAT CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px;}
+.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;}
+.sc-label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.sc-val{font-size:22px;font-weight:700;}
+.sc-val.blue{color:#4361ee;}
+.sc-val.green{color:#10b981;}
+.sc-val.amber{color:#f59e0b;}
+.sc-val.red{color:#ef4444;}
+.sc-sub{font-size:11px;color:#10b981;margin-top:3px;font-weight:500;}
+
+/* ── CHARTS ── */
+.charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px;}
+.chart-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;}
+.chart-card h3{font-size:12px;font-weight:600;color:#64748b;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px;}
+.chart-card canvas{max-height:140px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;border:none;transition:all .15s;white-space:nowrap;cursor:pointer;}
+.btn-primary{background:#4361ee;color:#fff;}
+.btn-primary:hover{background:#3451d1;}
+.btn-secondary{background:#fff;color:#334155;border:1px solid #e2e8f0;}
+.btn-secondary:hover{background:#f8fafc;}
+.btn-danger{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+.btn-danger:hover{background:#fecaca;}
+.btn-sm{padding:4px 10px;font-size:11px;}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.badge-green{background:#dcfce7;color:#166534;}
+.badge-amber{background:#fef3c7;color:#92400e;}
+.badge-red{background:#fee2e2;color:#991b1b;}
+.badge-blue{background:#dbeafe;color:#1e40af;}
+.badge-purple{background:#f5f3ff;color:#6d28d9;}
+.badge-gray{background:#f1f5f9;color:#475569;}
+
+/* ── TABLE CARD ── */
+.tc{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;}
+.tc-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #e2e8f0;gap:10px;flex-wrap:wrap;}
+.tc-title{font-size:13px;font-weight:600;color:#1e293b;}
+.tc-toolbar{padding:10px 18px;border-bottom:1px solid #f1f5f9;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#f8fafc;}
+.tc-search{position:relative;flex:1;min-width:180px;}
+.tc-search input{width:100%;padding:7px 10px 7px 30px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;color:#334155;background:#fff;outline:none;}
+.tc-search input:focus{border-color:#4361ee;}
+.tc-search::before{content:'🔍';position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;}
+.filter-sel{padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;color:#334155;background:#fff;outline:none;cursor:pointer;}
+.filter-sel:focus{border-color:#4361ee;}
+.sort-btn{padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;color:#334155;background:#fff;cursor:pointer;display:flex;align-items:center;gap:4px;}
+.sort-btn:hover{background:#f8fafc;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead{background:#f8fafc;}
+th{padding:9px 14px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #e2e8f0;white-space:nowrap;user-select:none;}
+th.sortable{cursor:pointer;}
+th.sortable:hover{color:#4361ee;}
+th .sort-icon{margin-left:3px;opacity:.4;font-size:10px;}
+th.sort-asc .sort-icon,th.sort-desc .sort-icon{opacity:1;color:#4361ee;}
+td{padding:10px 14px;color:#374151;border-bottom:1px solid #f1f5f9;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:#fafbff;}
+.ev-id{color:#4361ee;font-weight:600;font-family:'JetBrains Mono',monospace;font-size:12px;text-decoration:none;cursor:pointer;}
+.ev-id:hover{text-decoration:underline;}
+
+/* ── PROGRESS ── */
+.prog{height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden;margin-top:4px;width:70px;}
+.prog-bar{height:100%;border-radius:2px;transition:width .3s;}
+
+/* ── QR ── */
+.qr-wrap{width:44px;height:44px;background:#000;border-radius:5px;padding:3px;cursor:pointer;}
+.qr-inner{width:100%;height:100%;background:#fff;display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}
+.qr-cell{background:#000;border-radius:1px;}
+.qr-cell.w{background:#fff;}
+
+/* ── CHECKIN BTN ── */
+.ci-btn{background:#10b981;color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:11px;font-weight:600;}
+.ci-btn:hover{background:#059669;}
+.ci-btn.done{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;cursor:default;}
+
+/* ── MODAL / OVERLAY ── */
+.overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(15,23,42,.35);backdrop-filter:blur(3px);align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:12px;padding:28px;width:90%;max-width:540px;box-shadow:0 20px 40px rgba(0,0,0,.12);animation:fadeUp .22s ease;max-height:92vh;overflow-y:auto;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-hd h2{font-size:17px;font-weight:700;color:#1e293b;}
+.modal-x{background:none;border:none;font-size:20px;color:#94a3b8;line-height:1;padding:2px;}
+.modal-x:hover{color:#334155;}
+.modal-ft{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 11px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;color:#1e293b;background:#fff;outline:none;transition:border-color .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#4361ee;}
+.fg input.err,.fg select.err{border-color:#ef4444;}
+.fg-err{font-size:11px;color:#ef4444;margin-top:3px;display:none;}
+.fg-err.show{display:block;}
+.fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg-full{grid-column:1/-1;}
+
+/* ── DETAIL PAGE ── */
+.inner-page{display:none;position:fixed;inset:0;z-index:500;background:#f0f2f5;overflow-y:auto;}
+.inner-page.open{display:block;}
+.inner-top{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:60px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:10;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.inner-back{background:none;border:none;color:#4361ee;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;}
+.inner-back:hover{text-decoration:underline;}
+.inner-top-title{font-size:14px;font-weight:600;color:#1e293b;}
+.inner-body{max-width:820px;margin:0 auto;padding:24px;}
+.detail-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:24px;margin-bottom:16px;}
+.detail-card h2{font-size:17px;font-weight:700;color:#1e293b;margin-bottom:4px;}
+.detail-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.detail-field dt{font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
+.detail-field dd{font-size:13px;font-weight:500;color:#334155;}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:#fff;border-radius:8px;padding:12px 14px;box-shadow:0 8px 20px rgba(0,0,0,.12);display:flex;align-items:center;gap:10px;min-width:280px;border:1px solid #e2e8f0;animation:slideIn .25s ease;}
+.toast.ok{border-left:3px solid #10b981;}
+.toast.err{border-left:3px solid #ef4444;}
+.toast.info{border-left:3px solid #4361ee;}
+.toast-icon{font-size:16px;}
+.toast-title{font-weight:700;color:#1e293b;font-size:12px;}
+.toast-msg{font-size:11px;color:#64748b;}
+@keyframes slideIn{from{transform:translateX(360px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(360px);opacity:0}}
+
+/* ── CHECK-IN ── */
+.ci-hero{background:linear-gradient(135deg,#10b981,#059669);border-radius:10px;padding:20px 24px;color:#fff;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+.ci-hero-l h2{font-size:18px;font-weight:700;}
+.ci-hero-l p{opacity:.85;font-size:12px;margin-top:2px;}
+.ci-counter{font-size:42px;font-weight:800;line-height:1;text-align:right;}
+.ci-counter-l{font-size:11px;opacity:.8;text-align:right;margin-top:2px;}
+
+/* ── SECURITY ── */
+.sec-score{background:linear-gradient(135deg,#1e40af,#4361ee);border-radius:10px;padding:20px 24px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:20px;}
+.sec-ring{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.15);border:3px solid rgba(255,255,255,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-ring-n{font-size:24px;font-weight:800;line-height:1;}
+.sec-ring-l{font-size:10px;opacity:.8;}
+.sec-info h3{font-size:15px;font-weight:700;margin-bottom:3px;}
+.sec-info p{font-size:12px;opacity:.85;}
+.sec-checks{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
+.sec-ck{font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;}
+.sec-ck.p{background:rgba(16,185,129,.25);}
+.sec-ck.w{background:rgba(245,158,11,.25);}
+
+/* ── REG VIEW ── */
+#regView{background:#f0f2f5;min-height:100vh;display:none;}
+#regView.open{display:block;}
+.reg-hd{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;}
+.reg-hero{background:linear-gradient(135deg,#1e40af,#4361ee,#6366f1);color:#fff;padding:48px 24px;text-align:center;}
+.reg-hero h1{font-size:28px;font-weight:800;margin-bottom:6px;}
+.reg-hero p{opacity:.85;font-size:14px;}
+.reg-body{max-width:720px;margin:0 auto;padding:24px;}
+.reg-ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:20px;}
+.reg-ev{background:#fff;border:2px solid #e2e8f0;border-radius:10px;padding:18px;transition:all .2s;}
+.reg-ev:hover{border-color:#bfdbfe;box-shadow:0 4px 12px rgba(67,97,238,.1);}
+.reg-ev-title{font-weight:700;font-size:14px;color:#1e293b;margin-bottom:5px;}
+.reg-ev-meta{font-size:11px;color:#64748b;display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.wl-badge{background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.reg-form-box{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:24px;}
+.reg-success{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:40px;text-align:center;}
+.conf-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#4361ee;text-align:left;margin-top:14px;white-space:pre-line;}
+
+/* ── DEVOPS ── */
+.pipe-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;margin-bottom:14px;}
+.pipe-stages{display:flex;align-items:center;gap:2px;overflow-x:auto;padding-bottom:4px;}
+.pipe-stage{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:78px;}
+.pipe-ic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.pipe-ic.pass{background:#dcfce7;}
+.pipe-ic.fail{background:#fee2e2;}
+.pipe-ic.run{background:#fef3c7;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pipe-sn{font-size:10px;font-weight:600;color:#64748b;}
+.pipe-st{font-size:10px;color:#94a3b8;}
+.pipe-arr{color:#cbd5e1;font-size:16px;margin-bottom:18px;}
+.pipe-sha{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4361ee;background:#eff6ff;padding:3px 9px;border-radius:5px;}
+
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .charts-grid{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .fg-grid{grid-template-columns:1fr;}
+  .detail-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ════════ REGISTRATION VIEW ════════ -->
+<div id="regView">
+  <div class="reg-hd">
+    <div class="logo"><div class="logo-icon">EP</div><div><div class="logo-text">EventPro</div><div class="logo-sub">Public Registration</div></div></div>
+    <button class="btn btn-secondary btn-sm" onclick="closeReg()">← Back to Admin</button>
+  </div>
+  <div class="reg-hero"><h1>🎟️ Event Registration</h1><p>Browse upcoming events and secure your spot</p></div>
+  <div class="reg-body">
+    <div id="regSuccess" style="display:none" class="reg-success">
+      <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:6px;">Registration Confirmed!</h2>
+      <p style="color:#64748b;font-size:13px;">Your spot is secured. Check your confirmation details below.</p>
+      <div class="conf-box" id="confBox"></div>
+      <button class="btn btn-primary" style="margin-top:16px;" onclick="resetReg()">Register for Another Event</button>
+    </div>
+    <div id="regFormArea">
+      <h3 style="font-size:15px;font-weight:700;color:#1e293b;margin-bottom:12px;">Choose an Event</h3>
+      <div class="reg-ev-grid" id="regEvGrid"></div>
+      <div class="reg-form-box" id="regFormBox" style="display:none;">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:3px;">Complete Registration</h3>
+        <p style="font-size:12px;color:#64748b;margin-bottom:18px;" id="regFormSub"></p>
+        <div class="fg-grid">
+          <div class="fg"><label>Full Name *</label><input type="text" id="rf_name" placeholder="Jane Smith"></div>
+          <div class="fg"><label>Email Address *</label><input type="email" id="rf_email" placeholder="jane@company.com"></div>
+          <div class="fg"><label>Company</label><input type="text" id="rf_co" placeholder="Acme Corp"></div>
+          <div class="fg"><label>Job Title</label><input type="text" id="rf_job" placeholder="Software Engineer"></div>
+          <div class="fg fg-full"><label>Dietary Requirements</label>
+            <select id="rf_diet"><option>None</option><option>Vegetarian</option><option>Vegan</option><option>Gluten-free</option><option>Halal</option><option>Kosher</option></select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="submitReg()">✓ Complete Registration</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('regFormBox').style.display='none'">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ EVENT DETAIL PAGE ════════ -->
+<div id="evDetailPage" class="inner-page">
+  <div class="inner-top">
+    <button class="inner-back" onclick="closeEvDetail()">← Back to Events</button>
+    <span class="inner-top-title" id="evDetailTitle">Event Details</span>
+    <div style="margin-left:auto;display:flex;gap:8px;">
+      <button class="btn btn-primary btn-sm" onclick="openEditEvModal()">✏️ Edit Event</button>
+    </div>
+  </div>
+  <div class="inner-body">
+    <div class="detail-card" id="evDetailCard"></div>
+    <div class="detail-card" id="evDetailAtts"></div>
+  </div>
+</div>
+
+<!-- ════════ ATTENDEE DETAIL PAGE ════════ -->
+<div id="attDetailPage" class="inner-page">
+  <div class="inner-top">
+    <button class="inner-back" onclick="closeAttDetail()">← Back to Attendees</button>
+    <span class="inner-top-title" id="attDetailTitle">Attendee Details</span>
+    <div style="margin-left:auto;display:flex;gap:8px;">
+      <button class="btn btn-primary btn-sm" onclick="openEditAttModal()">✏️ Edit Attendee</button>
+    </div>
+  </div>
+  <div class="inner-body">
+    <div class="detail-card" id="attDetailCard"></div>
+  </div>
+</div>
+
+<!-- ════════ CREATE/EDIT EVENT MODAL ════════ -->
+<div id="evModal" class="overlay">
+  <div class="modal">
+    <div class="modal-hd">
+      <h2 id="evModalTitle">Create New Event</h2>
+      <button class="modal-x" onclick="closeEvModal()">✕</button>
+    </div>
+    <div class="fg-grid">
+      <div class="fg fg-full"><label>Event Title *</label><input type="text" id="em_title" placeholder="Tech Conference 2026"></div>
+      <div class="fg"><label>Event Type</label>
+        <select id="em_type"><option>Conference</option><option>Workshop</option><option>Meetup</option><option>Webinar</option><option>Training</option></select>
+      </div>
+      <div class="fg"><label>Payment Type</label>
+        <select id="em_pay"><option>Free</option><option>Paid</option><option>Pending</option></select>
+      </div>
+      <div class="fg"><label>Start Date *</label><input type="date" id="em_start"></div>
+      <div class="fg"><label>End Date *</label><input type="date" id="em_end"></div>
+      <div class="fg"><label>Capacity *</label><input type="number" id="em_cap" placeholder="100" min="1"></div>
+      <div class="fg"><label>Status</label>
+        <select id="em_status"><option>Active</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select>
+      </div>
+      <div class="fg fg-full"><label>Description</label><textarea id="em_desc" rows="2" placeholder="Brief description of the event…"></textarea></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeEvModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ADD/EDIT ATTENDEE MODAL ════════ -->
+<div id="attModal" class="overlay">
+  <div class="modal">
+    <div class="modal-hd">
+      <h2 id="attModalTitle">Add Attendee</h2>
+      <button class="modal-x" onclick="closeAttModal()">✕</button>
+    </div>
+    <div class="fg-grid">
+      <div class="fg"><label>Full Name *</label><input type="text" id="am_name" placeholder="Jane Smith"></div>
+      <div class="fg"><label>Email *</label><input type="email" id="am_email" placeholder="jane@company.com"></div>
+      <div class="fg"><label>Company</label><input type="text" id="am_co" placeholder="Acme Corp"></div>
+      <div class="fg"><label>Job Title</label><input type="text" id="am_job" placeholder="Software Engineer"></div>
+      <div class="fg"><label>Event *</label><select id="am_ev"><option value="">Select event…</option></select></div>
+      <div class="fg"><label>Status</label>
+        <select id="am_status"><option>Confirmed</option><option>Pending</option><option>Waitlist</option></select>
+      </div>
+      <div class="fg fg-full"><label>Dietary Requirements</label>
+        <select id="am_diet"><option>None</option><option>Vegetarian</option><option>Vegan</option><option>Gluten-free</option><option>Halal</option><option>Kosher</option></select>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeAttModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAttendee()">Save Attendee</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ APP SHELL ════════ -->
+<div id="appShell">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">EP</div>
+      <div><div class="logo-text">EventPro</div><div class="logo-sub">Management Platform</div></div>
+    </div>
+    <div class="header-right">
+      <button class="dm-toggle" id="dmToggle" onclick="toggleDark()">🌙 Dark</button>
+      <button class="reglink-btn" onclick="openReg()">🔗 Public Reg Page</button>
+      <div class="avatar">PB</div>
+      <span class="username">Pritha Banerjee</span>
+      <button class="logout-btn" onclick="toast('Logged out','See you soon!','info')">Logout</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sb-stat"><div class="sb-label">Total Events</div><div class="sb-val" id="sb-ev">8</div></div>
+      <div class="sb-stat g"><div class="sb-label">Attendees</div><div class="sb-val" id="sb-at">0</div></div>
+      <div class="sb-stat a"><div class="sb-label">Check-ins</div><div class="sb-val" id="sb-ci">0</div></div>
+      <div class="sb-sep">Navigation</div>
+      <button class="nav-btn active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
+      <button class="nav-btn" onclick="showTab('events',this)">📅 Events</button>
+      <button class="nav-btn" onclick="showTab('attendees',this)">👥 Attendees</button>
+      <button class="nav-btn" onclick="showTab('checkin',this)">✅ Check-in Desk</button>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- ── DASHBOARD TAB ── -->
+      <div id="tab-dashboard" class="tab on">
+        <div class="ph">
+          <div><h1>Dashboard Overview</h1><p>Welcome back, Pritha — here's what's happening today.</p></div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="sc-label">Active Events</div><div class="sc-val blue" id="d-ev">4</div><div class="sc-sub">↑ 2 this month</div></div>
+          <div class="stat-card"><div class="sc-label">Total Registrations</div><div class="sc-val green" id="d-reg">0</div><div class="sc-sub">↑ 12% vs last week</div></div>
+          <div class="stat-card"><div class="sc-label">Revenue</div><div class="sc-val amber">$48,200</div><div class="sc-sub">↑ $3,200 this week</div></div>
+          <div class="stat-card"><div class="sc-label">Check-in Rate</div><div class="sc-val red" id="d-ci-rate">0%</div><div class="sc-sub">of registered</div></div>
+        </div>
+        <!-- Compact Charts -->
+        <div class="charts-grid">
+          <div class="chart-card"><h3>Registrations — Last 7 Days</h3><canvas id="regChart"></canvas></div>
+          <div class="chart-card"><h3>Revenue by Event Type</h3><canvas id="revChart"></canvas></div>
+        </div>
+        <!-- Recent Events (mini table) -->
+        <div class="tc">
+          <div class="tc-header"><span class="tc-title">Recent Events</span><button class="btn btn-primary btn-sm" onclick="showTab('events',document.querySelectorAll('.nav-btn')[1])">View All →</button></div>
+          <table><thead><tr><th>Event ID</th><th>Title</th><th>Start Date</th><th>Type</th><th>Attendees</th><th>Status</th></tr></thead>
+          <tbody id="dash-ev-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ── EVENTS TAB ── -->
+      <div id="tab-events" class="tab">
+        <div class="ph">
+          <div><h1>Events Management</h1><p>Manage and track all your events</p></div>
+          <div class="ph-right">
+            <button class="btn btn-primary" onclick="openCreateEvModal()">+ Create Event</button>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="sc-label">Active Events</div><div class="sc-val blue" id="ev-active">0</div></div>
+          <div class="stat-card"><div class="sc-label">Total Registrations</div><div class="sc-val green" id="ev-regs">0</div></div>
+          <div class="stat-card"><div class="sc-label">Revenue</div><div class="sc-val amber">$48,200</div></div>
+          <div class="stat-card"><div class="sc-label">Completed</div><div class="sc-val" id="ev-done">0</div></div>
+        </div>
+        <div class="tc">
+          <div class="tc-header"><span class="tc-title">Event Registry</span><button class="btn btn-primary btn-sm" onclick="openCreateEvModal()">+ Create Event</button></div>
+          <div class="tc-toolbar">
+            <div class="tc-search"><input type="text" placeholder="Search events…" oninput="filterEvents(this.value)" id="evSearch"></div>
+            <select class="filter-sel" id="evTypeFilter" onchange="filterEvents(document.getElementById('evSearch').value)">
+              <option value="">All Types</option>
+              <option>Conference</option><option>Workshop</option><option>Meetup</option><option>Webinar</option><option>Training</option>
+            </select>
+            <select class="filter-sel" id="evStatusFilter" onchange="filterEvents(document.getElementById('evSearch').value)">
+              <option value="">All Status</option>
+              <option>Active</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option>
+            </select>
+            <select class="filter-sel" id="evPayFilter" onchange="filterEvents(document.getElementById('evSearch').value)">
+              <option value="">All Payments</option>
+              <option>Free</option><option>Paid</option><option>Pending</option>
+            </select>
+            <div class="sort-btn" onclick="cycleEvSort()" id="evSortBtn">↕ Sort: Start Date</div>
+          </div>
+          <table>
+            <thead><tr>
+              <th class="sortable" onclick="sortEvents('id')">Event ID <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="sortEvents('title')">Title <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="sortEvents('start')">Start Date <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="sortEvents('end')">End Date <span class="sort-icon">↕</span></th>
+              <th>Type</th>
+              <th class="sortable" onclick="sortEvents('registered')">Attendees <span class="sort-icon">↕</span></th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr></thead>
+            <tbody id="ev-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ATTENDEES TAB ── -->
+      <div id="tab-attendees" class="tab">
+        <div class="ph">
+          <div><h1>Attendees Management</h1><p>Track all registered attendees</p></div>
+          <div class="ph-right">
+            <button class="btn btn-primary" onclick="openCreateAttModal()">+ Add Attendee</button>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="sc-label">Total Attendees</div><div class="sc-val blue" id="att-total">0</div></div>
+          <div class="stat-card"><div class="sc-label">Checked In</div><div class="sc-val green" id="att-ci">0</div></div>
+          <div class="stat-card"><div class="sc-label">Pending</div><div class="sc-val amber" id="att-pending">0</div></div>
+          <div class="stat-card"><div class="sc-label">Check-in Rate</div><div class="sc-val red" id="att-rate">0%</div></div>
+        </div>
+        <div class="tc">
+          <div class="tc-header"><span class="tc-title">Attendee Registry</span>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="btn btn-secondary btn-sm" onclick="exportAttsCSV()">⬇ Export CSV</button>
+              <button class="btn btn-primary btn-sm" onclick="openCreateAttModal()">+ Add Attendee</button>
+            </div>
+          </div>
+          <div class="tc-toolbar">
+            <div class="tc-search"><input type="text" placeholder="Search attendees…" oninput="filterAttendees(this.value)" id="attSearch"></div>
+            <select class="filter-sel" id="attEvFilter" onchange="applyAttFilters()">
+              <option value="">All Events</option>
+            </select>
+            <select class="filter-sel" id="attStatusFilter" onchange="applyAttFilters()">
+              <option value="">All Status</option>
+              <option>Confirmed</option><option>Pending</option><option>Waitlist</option>
+            </select>
+            <select class="filter-sel" id="attCiFilter" onchange="applyAttFilters()">
+              <option value="">All Check-ins</option>
+              <option value="yes">Checked In</option>
+              <option value="no">Not Checked In</option>
+            </select>
+            <div class="sort-btn" onclick="cycleAttSort()" id="attSortBtn">↕ Sort: Name</div>
+          </div>
+          <table>
+            <thead><tr>
+              <th class="sortable" onclick="sortAtts('id')">ID <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="sortAtts('name')">Name <span class="sort-icon">↕</span></th>
+              <th>Event</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr></thead>
+            <tbody id="att-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── CHECK-IN TAB ── -->
+      <div id="tab-checkin" class="tab">
+        <div class="ph"><div><h1>Check-in Desk</h1><p>Scan QR codes or search manually</p></div></div>
+        <div class="ci-hero">
+          <div class="ci-hero-l">
+            <h2>Live Check-in</h2>
+            <p>Today's event check-in status</p>
+            <div style="height:6px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:12px;width:220px;overflow:hidden;">
+              <div id="ci-prog-bar" style="height:100%;background:#fff;border-radius:3px;transition:width .5s;width:0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="ci-counter" id="ci-count">0</div>
+            <div class="ci-counter-l" id="ci-total-lbl">/ 0 checked in</div>
+          </div>
+        </div>
+        <div class="tc" style="margin-bottom:16px;">
+          <div class="tc-header"><span class="tc-title">Quick Search & Check-in</span>
+            <select class="filter-sel" id="ci-ev-filter" onchange="renderCiTable()"><option value="">All Events</option></select>
+          </div>
+          <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;">
+            <input type="text" id="ci-search" placeholder="Search by name or email…" oninput="renderCiTable()" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;outline:none;">
+          </div>
+          <table><thead><tr><th>ID</th><th>Name</th><th>Event</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="ci-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ── SECURITY TAB ── -->
+      <div id="tab-security" class="tab">
+        <div class="ph"><div><h1>Security Management</h1><p>Monitor login attempts and threats</p></div></div>
+        <div class="sec-score">
+          <div class="sec-ring"><div class="sec-ring-n">92</div><div class="sec-ring-l">Score</div></div>
+          <div class="sec-info">
+            <h3>Security Status: Good</h3>
+            <p>All critical systems are secure. 2 warnings require attention.</p>
+            <div class="sec-checks">
+              <span class="sec-ck p">✓ JWT Active</span>
+              <span class="sec-ck p">✓ Rate Limiting</span>
+              <span class="sec-ck p">✓ Input Validation</span>
+              <span class="sec-ck w">⚠ 2FA Disabled</span>
+              <span class="sec-ck w">⚠ Cert Expires 30d</span>
+            </div>
+          </div>
+        </div>
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card"><div class="sc-label">Logins Today</div><div class="sc-val blue">42</div></div>
+          <div class="stat-card"><div class="sc-label">Failed Attempts</div><div class="sc-val red">7</div></div>
+          <div class="stat-card"><div class="sc-label">Blocked IPs</div><div class="sc-val amber">2</div></div>
+        </div>
+        <div class="tc">
+          <div class="tc-header"><span class="tc-title">Login Attempts</span></div>
+          <table><thead><tr><th>User</th><th>IP Address</th><th>Date & Time</th><th>Location</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="sec-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ── DEVOPS TAB ── -->
+      <div id="tab-devops" class="tab">
+        <div class="ph"><div><h1>DevSecOps Pipeline</h1><p>CI/CD status and security scans</p></div></div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="sc-label">Pipeline Status</div><div class="sc-val green">Passing</div></div>
+          <div class="stat-card"><div class="sc-label">Last Deploy</div><div class="sc-val blue" style="font-size:16px;">2h ago</div></div>
+          <div class="stat-card"><div class="sc-label">SAST Score</div><div class="sc-val amber">A+</div></div>
+          <div class="stat-card"><div class="sc-label">Uptime</div><div class="sc-val green">99.9%</div></div>
+        </div>
+        <div class="pipe-card">
+          <div style="font-size:13px;font-weight:600;color:#1e293b;margin-bottom:16px;display:flex;align-items:center;gap:8px;">⚙️ Latest Pipeline Run</div>
+          <div class="pipe-stages">
+            <div class="pipe-stage"><div class="pipe-ic pass">✅</div><div class="pipe-sn">Source</div><div class="pipe-st">2m 10s</div></div>
+            <div class="pipe-arr">›</div>
+            <div class="pipe-stage"><div class="pipe-ic pass">✅</div><div class="pipe-sn">Build</div><div class="pipe-st">1m 45s</div></div>
+            <div class="pipe-arr">›</div>
+            <div class="pipe-stage"><div class="pipe-ic pass">✅</div><div class="pipe-sn">SAST Scan</div><div class="pipe-st">3m 22s</div></div>
+            <div class="pipe-arr">›</div>
+            <div class="pipe-stage"><div class="pipe-ic pass">✅</div><div class="pipe-sn">Unit Tests</div><div class="pipe-st">2m 58s</div></div>
+            <div class="pipe-arr">›</div>
+            <div class="pipe-stage"><div class="pipe-ic run">⏳</div><div class="pipe-sn">Deploy</div><div class="pipe-st">Running…</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid #f1f5f9;flex-wrap:wrap;">
+            <span class="pipe-sha">a3f7b2c</span>
+            <span style="font-size:12px;color:#64748b;">main branch · triggered by admin · 5 min ago</span>
+            <span class="badge badge-amber" style="margin-left:auto;">⏳ In Progress</span>
+          </div>
+        </div>
+        <div class="tc">
+          <div class="tc-header"><span class="tc-title">Security Findings (SAST)</span></div>
+          <table><thead><tr><th>Severity</th><th>Finding</th><th>File</th><th>Line</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-amber">Medium</span></td><td>Hardcoded secret</td><td>config.js</td><td>42</td><td><span class="badge badge-green">Resolved</span></td></tr>
+            <tr><td><span class="badge badge-blue">Low</span></td><td>Missing HSTS header</td><td>server.js</td><td>18</td><td><span class="badge badge-amber">Open</span></td></tr>
+            <tr><td><span class="badge badge-blue">Low</span></td><td>Outdated dependency</td><td>package.json</td><td>—</td><td><span class="badge badge-amber">Open</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- ── LOGS TAB ── -->
+      <div id="tab-logs" class="tab">
+        <div class="ph">
+          <div><h1>Activity Logs</h1><p>Full audit trail of system actions</p></div>
+          <div class="ph-right"><button class="btn btn-secondary" onclick="exportLogsCSV()">⬇ Export CSV</button></div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="sc-label">Total Logs</div><div class="sc-val blue" id="log-count">0</div></div>
+          <div class="stat-card"><div class="sc-label">Event Actions</div><div class="sc-val">—</div></div>
+          <div class="stat-card"><div class="sc-label">Security Alerts</div><div class="sc-val red">7</div></div>
+          <div class="stat-card"><div class="sc-label">System Actions</div><div class="sc-val">—</div></div>
+        </div>
+        <div class="tc">
+          <div class="tc-header"><span class="tc-title">System Logs</span></div>
+          <table><thead><tr><th>Log ID</th><th>Action</th><th>User</th><th>Date & Time</th><th>Category</th><th>Details</th></tr></thead>
+          <tbody id="log-body"></tbody></table>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /layout -->
+</div><!-- /appShell -->
+
+{% raw %}
+<script>
+// ════════ DATA ════════
+let events = [
+  {id:'JB235005590',title:'Tech Conference 2026',start:'2026-06-15',end:'2026-06-17',type:'Conference',capacity:500,registered:342,pay:'Paid',status:'Active',desc:'Annual tech conference featuring industry leaders and innovators.'},
+  {id:'JB235005589',title:'Web Dev Workshop',start:'2026-05-20',end:'2026-05-22',type:'Workshop',capacity:100,registered:87,pay:'Pending',status:'Confirmed',desc:'Hands-on workshop covering React, Node.js and modern web development.'},
+  {id:'JB235005588',title:'Networking Meetup',start:'2026-04-10',end:'2026-04-10',type:'Meetup',capacity:200,registered:156,pay:'Free',status:'Completed',desc:'Monthly professional networking evening for Stockholm tech community.'},
+  {id:'JB235005587',title:'AI Summit 2026',start:'2026-07-01',end:'2026-07-03',type:'Conference',capacity:300,registered:12,pay:'Paid',status:'Active',desc:'Exploring the frontier of artificial intelligence and machine learning.'},
+  {id:'JB235005586',title:'UX Design Bootcamp',start:'2026-05-05',end:'2026-05-06',type:'Workshop',capacity:60,registered:45,pay:'Paid',status:'Confirmed',desc:'Intensive UX design bootcamp with hands-on projects.'},
+  {id:'JB235005585',title:'Startup Pitch Night',start:'2026-04-22',end:'2026-04-22',type:'Meetup',capacity:120,registered:98,pay:'Free',status:'Active',desc:'Startups pitch to investors and receive live feedback.'},
+  {id:'JB235005584',title:'Cloud Computing Summit',start:'2026-08-10',end:'2026-08-12',type:'Conference',capacity:400,registered:5,pay:'Paid',status:'Active',desc:'Deep dives into AWS, Azure, and GCP architectures.'},
+  {id:'JB235005583',title:'Cybersecurity Workshop',start:'2026-03-01',end:'2026-03-02',type:'Workshop',capacity:60,registered:60,pay:'Paid',status:'Completed',desc:'Practical cybersecurity training for developers.'}
+];
+let attendees = [
+  {id:'ATT-001',name:'John Doe',email:'john.doe@techcorp.com',company:'TechCorp',job:'Senior Engineer',event:'Tech Conference 2026',type:'Conference',diet:'None',status:'Confirmed',checkedIn:true,ciTime:'2026-06-15 09:12'},
+  {id:'ATT-002',name:'Jane Smith',email:'jane.smith@webdev.io',company:'WebDev IO',job:'Frontend Developer',event:'Web Dev Workshop',type:'Workshop',diet:'Vegetarian',status:'Confirmed',checkedIn:false,ciTime:''},
+  {id:'ATT-003',name:'Mike Johnson',email:'mike.j@design.co',company:'Design Co',job:'UX Designer',event:'Networking Meetup',type:'Meetup',diet:'None',status:'Pending',checkedIn:false,ciTime:''},
+  {id:'ATT-004',name:'Sarah Lee',email:'sarah.lee@ai.ventures',company:'AI Ventures',job:'ML Researcher',event:'AI Summit 2026',type:'Conference',diet:'Vegan',status:'Confirmed',checkedIn:false,ciTime:''},
+  {id:'ATT-005',name:'Pritha Banerjee',email:'pritha.b@eventpro.com',company:'EventPro',job:'Product Manager',event:'Tech Conference 2026',type:'Conference',diet:'None',status:'Confirmed',checkedIn:true,ciTime:'2026-06-15 08:45'},
+  {id:'ATT-006',name:'Alex Kumar',email:'alex.kumar@uxstudio.com',company:'UX Studio',job:'Design Lead',event:'UX Design Bootcamp',type:'Workshop',diet:'Halal',status:'Confirmed',checkedIn:false,ciTime:''},
+  {id:'ATT-007',name:'Emma Wilson',email:'emma.w@startup.io',company:'Startup IO',job:'CEO',event:'Startup Pitch Night',type:'Meetup',diet:'None',status:'Pending',checkedIn:false,ciTime:''},
+  {id:'ATT-008',name:'David Chen',email:'d.chen@cloudarch.com',company:'CloudArch',job:'Cloud Architect',event:'Cloud Computing Summit',type:'Conference',diet:'None',status:'Confirmed',checkedIn:false,ciTime:''},
+  {id:'ATT-009',name:'Sofia Martinez',email:'sofia.m@securedev.es',company:'SecureDev',job:'Security Analyst',event:'Cybersecurity Workshop',type:'Workshop',diet:'None',status:'Confirmed',checkedIn:true,ciTime:'2026-03-01 09:00'},
+  {id:'ATT-010',name:'James Brown',email:'j.brown@ailab.uk',company:'AI Lab UK',job:'Data Scientist',event:'AI Summit 2026',type:'Conference',diet:'Gluten-free',status:'Pending',checkedIn:false,ciTime:''}
+];
+const secLogs = [
+  {user:'admin',ip:'192.168.1.100',time:'2026-03-31 09:30',loc:'Stockholm, SE',status:'Success'},
+  {user:'john_doe',ip:'203.0.113.45',time:'2026-03-31 09:15',loc:'London, UK',status:'Failed'},
+  {user:'admin',ip:'192.168.1.100',time:'2026-03-31 09:00',loc:'Stockholm, SE',status:'Success'},
+  {user:'jane_smith',ip:'198.51.100.89',time:'2026-03-31 08:45',loc:'Tokyo, JP',status:'Failed'},
+  {user:'user',ip:'10.0.0.50',time:'2026-03-31 08:30',loc:'New York, US',status:'Success'}
+];
+let actLogs = [
+  {id:'LOG-001',action:'Event created',user:'admin',time:'2026-03-31 09:30',cat:'Event',detail:'Tech Conference 2026'},
+  {id:'LOG-002',action:'Attendee checked in',user:'admin',time:'2026-03-31 09:25',cat:'Attendee',detail:'John Doe — ATT-001'},
+  {id:'LOG-003',action:'Failed login attempt',user:'john_doe',time:'2026-03-31 09:15',cat:'Security',detail:'IP: 203.0.113.45'},
+  {id:'LOG-004',action:'System backup',user:'system',time:'2026-03-31 09:00',cat:'System',detail:'Automated backup completed'},
+  {id:'LOG-005',action:'Event updated',user:'admin',time:'2026-03-31 08:50',cat:'Event',detail:'Web Dev Workshop'}
+];
+
+// ════════ SORT STATE ════════
+let evSort={key:'start',dir:1};
+let attSort={key:'name',dir:1};
+let currentEvEdit=null;
+let currentAttEdit=null;
+let selectedRegEv='';
+let chartsInited=false;
+
+// ════════ UTILS ════════
+function fmtDate(s){if(!s)return'—';try{return new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}catch{return s;}}
+function sanitize(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML.replace(/[<>"'&]/g,'');}
+function toast(title,msg,type='ok'){
+  const w=document.getElementById('toastWrap');
+  const t=document.createElement('div');t.className=`toast ${type}`;
+  t.innerHTML=`<div class="toast-icon">${{ok:'✅',err:'❌',info:'ℹ️'}[type]||'ℹ️'}</div><div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
+  w.appendChild(t);
+  setTimeout(()=>{t.style.animation='slideOut .25s ease';setTimeout(()=>t.remove(),250);},3500);
+}
+function genQR(seed){
+  const h=[...(seed||'x')].reduce((a,c)=>a+c.charCodeAt(0),0);
+  return Array(49).fill(0).map((_,i)=>{const on=((h*(i+7)*13)%17)>7;return`<div class="qr-cell${on?'':' w'}"></div>`;}).join('');
+}
+function payBadge(p){const m={Paid:'badge-green',Free:'badge-blue',Pending:'badge-amber'};return`<span class="badge ${m[p]||'badge-gray'}">${p}</span>`;}
+function statusBadge(s){const m={Active:'badge-green',Confirmed:'badge-blue',Completed:'badge-gray',Cancelled:'badge-red'};return`<span class="badge ${m[s]||'badge-gray'}">${s}</span>`;}
+
+// ════════ SIDEBAR / STATS ════════
+function updateSidebar(){
+  document.getElementById('sb-ev').textContent=events.length;
+  document.getElementById('sb-at').textContent=attendees.length;
+  const ci=attendees.filter(a=>a.checkedIn).length;
+  document.getElementById('sb-ci').textContent=ci;
+  document.getElementById('d-ev').textContent=events.filter(e=>e.status==='Active').length;
+  document.getElementById('d-reg').textContent=attendees.length;
+  const rate=attendees.length?Math.round(ci/attendees.length*100):0;
+  document.getElementById('d-ci-rate').textContent=rate+'%';
+  document.getElementById('ev-active').textContent=events.filter(e=>e.status==='Active').length;
+  document.getElementById('ev-regs').textContent=attendees.length;
+  document.getElementById('ev-done').textContent=events.filter(e=>e.status==='Completed').length;
+  document.getElementById('att-total').textContent=attendees.length;
+  document.getElementById('att-ci').textContent=ci;
+  document.getElementById('att-pending').textContent=attendees.filter(a=>!a.checkedIn).length;
+  document.getElementById('att-rate').textContent=rate+'%';
+  updateCiStats();
+}
+function updateCiStats(){
+  const ci=attendees.filter(a=>a.checkedIn).length;
+  const total=attendees.length;
+  document.getElementById('ci-count').textContent=ci;
+  document.getElementById('ci-total-lbl').textContent='/ '+total+' checked in';
+  const pct=total?Math.round(ci/total*100):0;
+  document.getElementById('ci-prog-bar').style.width=pct+'%';
+}
+
+// ════════ TABS ════════
+function showTab(name,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tab-'+name).classList.add('on');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(name==='checkin'){renderCiTable();populateCiFilter();}
+  if(name==='logs'){renderLogs();document.getElementById('log-count').textContent=actLogs.length;}
+  if(name==='attendees'){populateAttEvSelect();}
+  if(!chartsInited&&name==='dashboard'){initCharts();chartsInited=true;}
+}
+
+// ════════ CHARTS ════════
+function initCharts(){
+  const opts={responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}}};
+  new Chart(document.getElementById('regChart'),{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{label:'Registrations',data:[45,82,60,95,110,130,98],borderColor:'#4361ee',backgroundColor:'rgba(67,97,238,.08)',tension:.4,fill:true,pointRadius:3}]},options:{...opts,scales:{y:{beginAtZero:true,ticks:{font:{size:10}}},x:{ticks:{font:{size:10}}}}}});
+  new Chart(document.getElementById('revChart'),{type:'bar',data:{labels:['Conference','Workshop','Meetup'],datasets:[{label:'Revenue ($)',data:[28000,15200,5000],backgroundColor:['#4361ee','#10b981','#f59e0b'],borderRadius:4}]},options:{...opts,scales:{y:{beginAtZero:true,ticks:{font:{size:10}}},x:{ticks:{font:{size:10}}}}}});
+}
+
+// ════════ EVENTS ════════
+function renderEvents(data){
+  const list = data || getFilteredEvents();
+  document.getElementById('ev-body').innerHTML = list.map(e=>{
+    const pct=Math.round(e.registered/e.capacity*100);
+    return `<tr>
+      <td><span class="ev-id" onclick="openEvDetail('${e.id}')">${e.id}</span></td>
+      <td style="font-weight:500;">${e.title}</td>
+      <td>${fmtDate(e.start)}</td>
+      <td>${fmtDate(e.end)}</td>
+      <td><span class="badge badge-blue">${e.type}</span></td>
+      <td>
+        <span style="font-size:12px;color:#334155;">${e.registered}/${e.capacity}</span>
+        <div class="prog"><div class="prog-bar" style="width:${pct}%;background:${pct>=100?'#ef4444':pct>=80?'#f59e0b':'#10b981'};"></div></div>
+      </td>
+      <td>${payBadge(e.pay)}</td>
+      <td>${statusBadge(e.status)}</td>
+      <td><button class="btn btn-secondary btn-sm" onclick="openEditEvModalById('${e.id}')">✏️ Edit</button></td>
+    </tr>`;
+  }).join('');
+  // mini dashboard table
+  const dash=document.getElementById('dash-ev-body');
+  if(dash) dash.innerHTML=events.slice(0,5).map(e=>`<tr>
+    <td><span class="ev-id" onclick="openEvDetail('${e.id}')">${e.id}</span></td>
+    <td style="font-weight:500;">${e.title}</td>
+    <td>${fmtDate(e.start)}</td>
+    <td><span class="badge badge-blue">${e.type}</span></td>
+    <td>${e.registered}/${e.capacity}</td>
+    <td>${statusBadge(e.status)}</td>
+  </tr>`).join('');
+}
+function getFilteredEvents(){
+  let list=[...events];
+  const q=(document.getElementById('evSearch')||{}).value||'';
+  const type=(document.getElementById('evTypeFilter')||{}).value||'';
+  const status=(document.getElementById('evStatusFilter')||{}).value||'';
+  const pay=(document.getElementById('evPayFilter')||{}).value||'';
+  if(q) list=list.filter(e=>e.title.toLowerCase().includes(q.toLowerCase())||e.id.includes(q));
+  if(type) list=list.filter(e=>e.type===type);
+  if(status) list=list.filter(e=>e.status===status);
+  if(pay) list=list.filter(e=>e.pay===pay);
+  list.sort((a,b)=>{
+    let va=a[evSort.key]||'',vb=b[evSort.key]||'';
+    if(evSort.key==='registered'){va=a.registered;vb=b.registered;}
+    if(va<vb)return -evSort.dir;
+    if(va>vb)return evSort.dir;
+    return 0;
+  });
+  return list;
+}
+function filterEvents(q){renderEvents();}
+function sortEvents(key){
+  if(evSort.key===key) evSort.dir*=-1; else {evSort.key=key;evSort.dir=1;}
+  document.querySelectorAll('#tab-events th .sort-icon').forEach(s=>s.textContent='↕');
+  renderEvents();
+}
+function cycleEvSort(){
+  const keys=['start','title','registered'];
+  const labels=['Start Date','Title','Registrations'];
+  const idx=(keys.indexOf(evSort.key)+1)%keys.length;
+  evSort={key:keys[idx],dir:1};
+  document.getElementById('evSortBtn').textContent='↕ Sort: '+labels[idx];
+  renderEvents();
+}
+
+// ════════ EVENT DETAIL ════════
+function openEvDetail(id){
+  const e=events.find(x=>x.id===id);if(!e)return;
+  document.getElementById('evDetailTitle').textContent=e.title;
+  const pct=Math.round(e.registered/e.capacity*100);
+  document.getElementById('evDetailCard').innerHTML=`
+    <h2>${e.title}</h2>
+    <div class="detail-meta">${statusBadge(e.status)}<span class="badge badge-blue">${e.type}</span>${payBadge(e.pay)}</div>
+    <p style="font-size:13px;color:#64748b;margin-bottom:18px;">${e.desc||'No description provided.'}</p>
+    <div class="detail-grid">
+      <div class="detail-field"><dt>Event ID</dt><dd style="font-family:'JetBrains Mono',monospace;font-size:12px;">${e.id}</dd></div>
+      <div class="detail-field"><dt>Start Date</dt><dd>${fmtDate(e.start)}</dd></div>
+      <div class="detail-field"><dt>End Date</dt><dd>${fmtDate(e.end)}</dd></div>
+      <div class="detail-field"><dt>Capacity</dt><dd>${e.capacity}</dd></div>
+      <div class="detail-field"><dt>Registered</dt><dd>${e.registered} (${pct}%)</dd></div>
+      <div class="detail-field"><dt>Available</dt><dd>${e.capacity-e.registered}</dd></div>
+    </div>`;
+  const evAtts=attendees.filter(a=>a.event===e.title);
+  document.getElementById('evDetailAtts').innerHTML=`
+    <h3 style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:14px;">Registered Attendees (${evAtts.length})</h3>
+    ${evAtts.length?`<table><thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Check-in</th></tr></thead><tbody>
+    ${evAtts.map(a=>`<tr><td><span class="ev-id">${a.id}</span></td><td>${a.name}</td><td>${statusBadge(a.status)}</td><td>${a.checkedIn?'<span class="badge badge-green">✓ Checked In</span>':'<span class="badge badge-amber">Pending</span>'}</td></tr>`).join('')}
+    </tbody></table>`:'<p style="color:#94a3b8;font-size:13px;">No attendees registered yet.</p>'}`;
+  document.getElementById('evDetailPage').classList.add('open');
+}
+function closeEvDetail(){document.getElementById('evDetailPage').classList.remove('open');}
+
+// ════════ EVENT MODAL ════════
+function openCreateEvModal(){
+  currentEvEdit=null;
+  document.getElementById('evModalTitle').textContent='Create New Event';
+  ['em_title','em_start','em_end','em_cap','em_desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('em_type').value='Conference';
+  document.getElementById('em_pay').value='Free';
+  document.getElementById('em_status').value='Active';
+  document.getElementById('evModal').classList.add('open');
+}
+function openEditEvModal(){
+  const id=document.getElementById('evDetailTitle').textContent;
+  const e=events.find(x=>x.title===id);
+  if(e) openEditEvModalById(e.id);
+}
+function openEditEvModalById(id){
+  const e=events.find(x=>x.id===id);if(!e)return;
+  currentEvEdit=id;
+  document.getElementById('evModalTitle').textContent='Edit Event';
+  document.getElementById('em_title').value=e.title;
+  document.getElementById('em_type').value=e.type;
+  document.getElementById('em_pay').value=e.pay;
+  document.getElementById('em_start').value=e.start;
+  document.getElementById('em_end').value=e.end;
+  document.getElementById('em_cap').value=e.capacity;
+  document.getElementById('em_status').value=e.status;
+  document.getElementById('em_desc').value=e.desc||'';
+  document.getElementById('evModal').classList.add('open');
+}
+function closeEvModal(){document.getElementById('evModal').classList.remove('open');}
+function saveEvent(){
+  const title=sanitize(document.getElementById('em_title').value.trim());
+  const cap=parseInt(document.getElementById('em_cap').value);
+  const start=document.getElementById('em_start').value;
+  const end=document.getElementById('em_end').value;
+  if(!title){toast('Error','Title is required','err');return;}
+  if(!cap||cap<1){toast('Error','Capacity must be ≥ 1','err');return;}
+  if(currentEvEdit){
+    const e=events.find(x=>x.id===currentEvEdit);if(!e)return;
+    e.title=title;e.type=document.getElementById('em_type').value;
+    e.pay=document.getElementById('em_pay').value;
+    if(start)e.start=start;if(end)e.end=end;
+    e.capacity=cap;e.status=document.getElementById('em_status').value;
+    e.desc=sanitize(document.getElementById('em_desc').value.trim());
+    addLog('Event updated','admin','Event',title);
+    toast('Updated',`${title} saved`,'ok');
+  } else {
+    if(!start||!end){toast('Error','Start and end dates required','err');return;}
+    const ts=Date.now().toString();
+    const newId='JB'+ts.slice(-9);
+    events.unshift({id:newId,title,type:document.getElementById('em_type').value,
+      start,end,capacity:cap,registered:0,
+      pay:document.getElementById('em_pay').value,
+      status:document.getElementById('em_status').value,
+      desc:sanitize(document.getElementById('em_desc').value.trim())});
+    addLog('Event created','admin','Event',title);
+    toast('Created',`${title} is live`,'ok');
+  }
+  closeEvModal();renderEvents();populateAttEvSelect();populateCiFilter();updateSidebar();
+}
+
+// ════════ ATTENDEES ════════
+function renderAttendees(data){
+  const list = data || getFilteredAtts();
+  document.getElementById('att-body').innerHTML=list.map(a=>`<tr>
+    <td><span class="ev-id" onclick="openAttDetail('${a.id}')">${a.id}</span></td>
+    <td style="font-weight:500;">${a.name}</td>
+    <td style="font-size:12px;color:#475569;">${a.event}</td>
+    <td><span class="badge badge-blue">${a.type}</span></td>
+    <td>${a.checkedIn?'<span class="badge badge-green">✓ Checked In</span>':statusBadge(a.status)}</td>
+    <td><button class="btn btn-secondary btn-sm" onclick="openEditAttModalById('${a.id}')">✏️ Edit</button></td>
+  </tr>`).join('');
+}
+function getFilteredAtts(){
+  let list=[...attendees];
+  const q=(document.getElementById('attSearch')||{}).value||'';
+  const ev=(document.getElementById('attEvFilter')||{}).value||'';
+  const status=(document.getElementById('attStatusFilter')||{}).value||'';
+  const ci=(document.getElementById('attCiFilter')||{}).value||'';
+  if(q) list=list.filter(a=>a.name.toLowerCase().includes(q.toLowerCase())||a.id.includes(q)||a.email.toLowerCase().includes(q.toLowerCase()));
+  if(ev) list=list.filter(a=>a.event===ev);
+  if(status) list=list.filter(a=>a.status===status);
+  if(ci==='yes') list=list.filter(a=>a.checkedIn);
+  if(ci==='no') list=list.filter(a=>!a.checkedIn);
+  list.sort((a,b)=>{
+    let va=a[attSort.key]||'',vb=b[attSort.key]||'';
+    if(va<vb)return -attSort.dir;if(va>vb)return attSort.dir;return 0;
+  });
+  return list;
+}
+function filterAttendees(q){renderAttendees();}
+function applyAttFilters(){renderAttendees();}
+function sortAtts(key){
+  if(attSort.key===key) attSort.dir*=-1; else {attSort.key=key;attSort.dir=1;}
+  renderAttendees();
+}
+function cycleAttSort(){
+  const keys=['name','id','status'];
+  const labels=['Name','ID','Status'];
+  const idx=(keys.indexOf(attSort.key)+1)%keys.length;
+  attSort={key:keys[idx],dir:1};
+  document.getElementById('attSortBtn').textContent='↕ Sort: '+labels[idx];
+  renderAttendees();
+}
+function populateAttEvSelect(){
+  ['am_ev','attEvFilter'].forEach(id=>{
+    const sel=document.getElementById(id);if(!sel)return;
+    const def=id==='attEvFilter'?'<option value="">All Events</option>':'<option value="">Select event…</option>';
+    sel.innerHTML=def+events.map(e=>`<option value="${e.title}">${e.title}</option>`).join('');
+  });
+}
+
+// ════════ ATTENDEE DETAIL ════════
+function openAttDetail(id){
+  const a=attendees.find(x=>x.id===id);if(!a)return;
+  document.getElementById('attDetailTitle').textContent=a.name;
+  document.getElementById('attDetailCard').innerHTML=`
+    <h2>${a.name}</h2>
+    <div class="detail-meta">${a.checkedIn?'<span class="badge badge-green">✓ Checked In</span>':statusBadge(a.status)}<span class="badge badge-blue">${a.type}</span></div>
+    <div class="detail-grid">
+      <div class="detail-field"><dt>Attendee ID</dt><dd style="font-family:'JetBrains Mono',monospace;font-size:12px;">${a.id}</dd></div>
+      <div class="detail-field"><dt>Email</dt><dd>${a.email}</dd></div>
+      <div class="detail-field"><dt>Company</dt><dd>${a.company||'—'}</dd></div>
+      <div class="detail-field"><dt>Job Title</dt><dd>${a.job||'—'}</dd></div>
+      <div class="detail-field"><dt>Registered Event</dt><dd>${a.event}</dd></div>
+      <div class="detail-field"><dt>Dietary</dt><dd>${a.diet||'None'}</dd></div>
+      <div class="detail-field"><dt>Check-in Time</dt><dd>${a.ciTime||'—'}</dd></div>
+      <div class="detail-field"><dt>Registration Status</dt><dd>${a.status}</dd></div>
+    </div>`;
+  document.getElementById('attDetailPage').classList.add('open');
+}
+function closeAttDetail(){document.getElementById('attDetailPage').classList.remove('open');}
+
+// ════════ ATTENDEE MODAL ════════
+function openCreateAttModal(){
+  currentAttEdit=null;
+  document.getElementById('attModalTitle').textContent='Add Attendee';
+  ['am_name','am_email','am_co','am_job'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('am_status').value='Confirmed';
+  document.getElementById('am_diet').value='None';
+  populateAttEvSelect();
+  document.getElementById('am_ev').value='';
+  document.getElementById('attModal').classList.add('open');
+}
+function openEditAttModal(){
+  const title=document.getElementById('attDetailTitle').textContent;
+  const a=attendees.find(x=>x.name===title);
+  if(a) openEditAttModalById(a.id);
+}
+function openEditAttModalById(id){
+  const a=attendees.find(x=>x.id===id);if(!a)return;
+  currentAttEdit=id;
+  document.getElementById('attModalTitle').textContent='Edit Attendee';
+  document.getElementById('am_name').value=a.name;
+  document.getElementById('am_email').value=a.email;
+  document.getElementById('am_co').value=a.company||'';
+  document.getElementById('am_job').value=a.job||'';
+  document.getElementById('am_status').value=a.status;
+  document.getElementById('am_diet').value=a.diet||'None';
+  populateAttEvSelect();
+  document.getElementById('am_ev').value=a.event;
+  document.getElementById('attModal').classList.add('open');
+}
+function closeAttModal(){document.getElementById('attModal').classList.remove('open');}
+function saveAttendee(){
+  const name=sanitize(document.getElementById('am_name').value.trim());
+  const email=sanitize(document.getElementById('am_email').value.trim());
+  const evTitle=document.getElementById('am_ev').value;
+  if(!name){toast('Error','Name required','err');return;}
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast('Error','Valid email required','err');return;}
+  if(currentAttEdit){
+    const a=attendees.find(x=>x.id===currentAttEdit);if(!a)return;
+    a.name=name;a.email=email;
+    a.company=sanitize(document.getElementById('am_co').value.trim());
+    a.job=sanitize(document.getElementById('am_job').value.trim());
+    a.status=document.getElementById('am_status').value;
+    a.diet=document.getElementById('am_diet').value;
+    if(evTitle){const ev=events.find(x=>x.title===evTitle);a.event=evTitle;a.type=ev?.type||'Unknown';}
+    addLog('Attendee updated','admin','Attendee',name);
+    toast('Updated',`${name} saved`,'ok');
+  } else {
+    if(!evTitle){toast('Error','Select an event','err');return;}
+    const ev=events.find(x=>x.title===evTitle);
+    let status=document.getElementById('am_status').value;
+    if(ev&&ev.registered>=ev.capacity){status='Waitlist';toast('Waitlist','Event full — added to waitlist','info');}
+    else if(ev) ev.registered++;
+    attendees.push({id:'ATT-'+String(attendees.length+1).padStart(3,'0'),name,email,
+      company:sanitize(document.getElementById('am_co').value.trim()),
+      job:sanitize(document.getElementById('am_job').value.trim()),
+      event:evTitle,type:ev?.type||'Unknown',
+      diet:document.getElementById('am_diet').value,
+      status,checkedIn:false,ciTime:''});
+    addLog('Attendee added','admin','Attendee',`${name} — ${evTitle}`);
+    if(status!=='Waitlist')toast('Added',`${name} registered`,'ok');
+  }
+  closeAttModal();renderAttendees();renderEvents();updateSidebar();
+}
+
+// ════════ CHECK-IN ════════
+function populateCiFilter(){
+  const sel=document.getElementById('ci-ev-filter');
+  sel.innerHTML='<option value="">All Events</option>'+events.map(e=>`<option value="${e.title}">${e.title}</option>`).join('');
+}
+function renderCiTable(){
+  const q=(document.getElementById('ci-search').value||'').toLowerCase();
+  const ev=(document.getElementById('ci-ev-filter').value||'');
+  let list=attendees;
+  if(q) list=list.filter(a=>a.name.toLowerCase().includes(q)||a.email.toLowerCase().includes(q));
+  if(ev) list=list.filter(a=>a.event===ev);
+  document.getElementById('ci-body').innerHTML=list.map((a,i)=>{
+    const idx=attendees.indexOf(a);
+    return `<tr>
+      <td><span class="ev-id">${a.id}</span></td>
+      <td style="font-weight:500;">${a.name}</td>
+      <td style="font-size:12px;color:#475569;">${a.event}</td>
+      <td>${a.checkedIn?'<span class="badge badge-green">✓ In</span>':'<span class="badge badge-amber">Pending</span>'}</td>
+      <td><button class="ci-btn ${a.checkedIn?'done':''}" onclick="checkIn(${idx})" ${a.checkedIn?'disabled':''}>${a.checkedIn?'✅ Done':'Check In'}</button></td>
+    </tr>`;
+  }).join('');
+}
+function checkIn(i){
+  if(attendees[i].checkedIn)return;
+  attendees[i].checkedIn=true;
+  attendees[i].ciTime=new Date().toLocaleString('en-GB');
+  addLog('Attendee checked in','admin','Attendee',attendees[i].name+' — '+attendees[i].id);
+  toast('Checked In',`${attendees[i].name} checked in!`,'ok');
+  renderCiTable();renderAttendees();updateSidebar();
+}
+
+// ════════ SECURITY LOGS ════════
+function renderSecLogs(){
+  document.getElementById('sec-body').innerHTML=secLogs.map(l=>`<tr>
+    <td style="font-weight:500;">${l.user}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${l.ip}</td>
+    <td>${l.time}</td><td>${l.loc}</td>
+    <td><span class="badge ${l.status==='Success'?'badge-green':'badge-red'}">${l.status}</span></td>
+    <td><button class="btn btn-danger btn-sm" onclick="toast('Blocked','${l.ip} blocked','ok')">Block IP</button></td>
+  </tr>`).join('');
+}
+
+// ════════ ACTIVITY LOGS ════════
+function renderLogs(){
+  document.getElementById('log-body').innerHTML=actLogs.map(l=>`<tr>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#4361ee;">${l.id}</td>
+    <td>${l.action}</td><td>${l.user}</td><td>${l.time}</td>
+    <td><span class="badge badge-blue">${l.cat}</span></td>
+    <td style="color:#64748b;font-size:12px;">${l.detail}</td>
+  </tr>`).join('');
+  document.getElementById('log-count').textContent=actLogs.length;
+}
+function addLog(action,user,cat,detail){
+  actLogs.unshift({id:'LOG-'+String(actLogs.length+1).padStart(3,'0'),action,user,
+    time:new Date().toLocaleString('en-GB'),cat,detail});
+  if(document.getElementById('tab-logs').classList.contains('on'))renderLogs();
+}
+
+// ════════ EXPORTS ════════
+function exportAttsCSV(){
+  const csv=['ID,Name,Email,Company,Job,Event,Type,Dietary,Status,CheckedIn',...attendees.map(a=>`${a.id},"${a.name}","${a.email}","${a.company||''}","${a.job||''}","${a.event}",${a.type},${a.diet},${a.status},${a.checkedIn}`)].join('\n');
+  dlCSV(csv,'attendees.csv');toast('Exported','attendees.csv downloaded','ok');
+}
+function exportLogsCSV(){
+  const csv=['ID,Action,User,Time,Category,Detail',...actLogs.map(l=>`${l.id},"${l.action}","${l.user}","${l.time}",${l.cat},"${l.detail}"`)].join('\n');
+  dlCSV(csv,'logs.csv');toast('Exported','logs.csv downloaded','ok');
+}
+function dlCSV(csv,fn){const b=new Blob([csv],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=fn;a.click();URL.revokeObjectURL(u);}
+
+// ════════ REGISTRATION VIEW ════════
+function openReg(){document.getElementById('regView').classList.add('open');renderRegPage();}
+function closeReg(){document.getElementById('regView').classList.remove('open');}
+function renderRegPage(){
+  document.getElementById('regSuccess').style.display='none';
+  document.getElementById('regFormArea').style.display='block';
+  document.getElementById('regFormBox').style.display='none';
+  document.getElementById('regEvGrid').innerHTML=events.map(e=>{
+    const isFull=e.registered>=e.capacity,pct=Math.round(e.registered/e.capacity*100);
+    return `<div class="reg-ev">
+      <div class="reg-ev-title">${e.title}</div>
+      <div class="reg-ev-meta"><span>📅 ${fmtDate(e.start)}</span><span>🏷️ ${e.type}</span><span>💳 ${e.pay}</span></div>
+      <div style="font-size:11px;font-weight:600;color:${isFull?'#ef4444':pct>=80?'#f59e0b':'#10b981'};margin-bottom:6px;">
+        ${isFull?'<span class="wl-badge">FULL – Join Waitlist</span>':`${e.capacity-e.registered} spots left`}
+      </div>
+      <div style="height:4px;background:#e2e8f0;border-radius:2px;margin-bottom:10px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${isFull?'#ef4444':pct>=80?'#f59e0b':'#10b981'};border-radius:2px;"></div>
+      </div>
+      <button class="btn ${isFull?'btn-secondary':'btn-primary'}" style="width:100%;justify-content:center;" onclick="selectRegEv('${e.title}')">
+        ${isFull?'Join Waitlist →':'Register →'}
+      </button>
+    </div>`;
+  }).join('');
+}
+function selectRegEv(title){
+  selectedRegEv=title;
+  const ev=events.find(e=>e.title===title),isFull=ev&&ev.registered>=ev.capacity;
+  document.getElementById('regFormSub').innerHTML=`Registering for: <strong>${title}</strong>${isFull?' <span class="wl-badge">Waitlist</span>':''}`;
+  document.getElementById('regFormBox').style.display='block';
+  document.getElementById('regFormBox').scrollIntoView({behavior:'smooth'});
+}
+function submitReg(){
+  const name=sanitize(document.getElementById('rf_name').value.trim());
+  const email=sanitize(document.getElementById('rf_email').value.trim());
+  if(!name||!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast('Error','Please fill in all required fields','err');return;}
+  const ev=events.find(x=>x.title===selectedRegEv),isFull=ev&&ev.registered>=ev.capacity;
+  const status=isFull?'Waitlist':'Confirmed';
+  if(!isFull&&ev)ev.registered++;
+  attendees.push({id:'ATT-'+String(attendees.length+1).padStart(3,'0'),name,email,
+    company:sanitize(document.getElementById('rf_co').value.trim()),
+    job:sanitize(document.getElementById('rf_job').value.trim()),
+    event:selectedRegEv,type:ev?.type||'Unknown',
+    diet:document.getElementById('rf_diet').value,status,checkedIn:false,ciTime:''});
+  addLog('Public registration',email,'Registration',`${name} — ${selectedRegEv}`);
+  const code='EP-'+Math.random().toString(36).slice(2,8).toUpperCase();
+  document.getElementById('confBox').textContent=`Confirmation  : ${code}\nName          : ${name}\nEvent         : ${selectedRegEv}\nStatus        : ${status}\nDate          : ${new Date().toLocaleDateString('en-GB')}`;
+  document.getElementById('regFormArea').style.display='none';
+  document.getElementById('regSuccess').style.display='block';
+  updateSidebar();
+}
+function resetReg(){selectedRegEv='';['rf_name','rf_email','rf_co','rf_job'].forEach(id=>document.getElementById(id).value='');renderRegPage();}
+
+// ════════ DARK MODE ════════
+function toggleDark(){
+  const isDark=document.body.classList.toggle('dark');
+  localStorage.setItem('epDark',isDark?'1':'0');
+  document.getElementById('dmToggle').textContent=isDark?'☀️ Light':'🌙 Dark';
+}
+(function(){
+  if(localStorage.getItem('epDark')==='1'){
+    document.body.classList.add('dark');
+    document.addEventListener('DOMContentLoaded',()=>{
+      const btn=document.getElementById('dmToggle');
+      if(btn)btn.textContent='☀️ Light';
+    });
+  }
+})();
+
+// ════════ BOOT ════════
+document.addEventListener('DOMContentLoaded',()=>{
+  renderEvents();renderAttendees();renderSecLogs();renderLogs();
+  populateAttEvSelect();populateCiFilter();updateSidebar();initCharts();chartsInited=true;
+});
+</script>
+{% endraw %}
+</body>
+</html>
